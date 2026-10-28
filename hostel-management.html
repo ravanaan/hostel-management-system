@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183c36">
+  <title>HostelDesk | Operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d302d;
+      --muted: #78827d;
+      --line: #e4e9e2;
+      --paper: #f5f7f3;
+      --white: #fff;
+      --green: #24584c;
+      --green-deep: #183c36;
+      --green-pale: #e8f1eb;
+      --orange: #c76d49;
+      --orange-pale: #f8ece5;
+      --blue: #547a9c;
+      --blue-pale: #eaf0f5;
+      --yellow: #a77c2f;
+      --yellow-pale: #f6f0df;
+      --shadow: 0 18px 48px rgb(29 48 45 / 14%);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: radial-gradient(ellipse at 82% 0, rgb(232 241 235 / 52%), transparent 34rem), var(--paper); font: 14px/1.5 "DM Sans", sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar { display: flex; flex-direction: column; padding: 27px 17px 18px; color: #e8f0eb; background: var(--green-deep); }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px 33px; color: white; }
+    .brand-mark { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid #6c9386; border-radius: 10px 10px 10px 3px; color: #d3eadc; font: 800 17px Manrope, sans-serif; }
+    .brand-name { font: 800 16px Manrope, sans-serif; letter-spacing: 0; }
+    .brand-caption { display: block; margin-top: 1px; color: #a6bcb2; font-size: 11px; font-weight: 500; }
+    .nav-label { padding: 0 11px 9px; color: #9ab0a6; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; }
+    .nav { display: grid; gap: 5px; }
+    .nav button { display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 12px; border: 0; border-radius: 6px; color: #c8d8d0; background: transparent; text-align: left; transition: background .16s, color .16s; }
+    .nav button:hover { color: white; background: #254a40; }
+    .nav button.active { color: white; background: #315d50; box-shadow: inset 3px 0 #e7a47f; }
+    .nav-glyph { display: grid; width: 20px; place-items: center; color: #a6c4b4; font-weight: 700; }
+    .nav-count { margin-left: auto; padding: 1px 7px; border-radius: 20px; color: #f2d5c6; background: #714f43; font-size: 11px; }
+    .sidebar-spacer { flex: 1; min-height: 36px; }
+    .property { margin: 0 3px 14px; padding: 13px; border: 1px solid #34594e; border-radius: 7px; background: #20463c; }
+    .property small { display: block; color: #a6bcb2; font-size: 10px; text-transform: uppercase; letter-spacing: .8px; }
+    .property strong { display: block; margin-top: 4px; color: white; font: 700 13px Manrope, sans-serif; }
+    .user { display: flex; align-items: center; gap: 10px; padding: 12px 8px 0; border-top: 1px solid #34594e; }
+    .avatar { display: grid; flex: 0 0 34px; width: 34px; height: 34px; place-items: center; border-radius: 50%; color: #274c40; background: #d4e5d8; font-weight: 700; }
+    .user strong { display: block; color: #f5f7f5; font-size: 12px; }
+    .user small { color: #a6bcb2; font-size: 11px; }
+    main { min-width: 0; }
+    .topbar { position: sticky; z-index: 2; top: 0; display: flex; align-items: center; justify-content: space-between; min-height: 75px; padding: 0 clamp(20px, 4vw, 52px); border-bottom: 1px solid var(--line); background: rgb(255 255 255 / 88%); backdrop-filter: blur(14px); }
+    .crumb { color: var(--muted); font-size: 12px; }
+    .top-actions { display: flex; align-items: center; gap: 11px; }
+    .search { position: relative; }
+    .search input { width: 218px; height: 36px; padding: 0 12px 0 34px; border: 1px solid var(--line); border-radius: 5px; outline: none; background: #fff; }
+    .search input:focus, input:focus, select:focus, textarea:focus { border-color: #83a394; box-shadow: 0 0 0 3px rgb(36 88 76 / 10%); outline: none; }
+    .search span { position: absolute; top: 7px; left: 12px; color: #8d9992; }
+    .icon-button { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: white; }
+    .icon-button:hover { background: #f2f5f0; }
+    .content { width: min(100%, 1440px); margin: 0 auto; padding: 31px clamp(20px, 4vw, 52px) 52px; }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 25px; }
+    .eyebrow { margin-bottom: 5px; color: var(--orange); font-size: 10px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
+    h1 { margin: 0; font: 800 clamp(23px, 3vw, 30px)/1.2 Manrope, sans-serif; letter-spacing: 0; }
+    .subtitle { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 0 14px; border: 1px solid transparent; border-radius: 6px; color: white; background: var(--green); box-shadow: 0 3px 8px rgb(36 88 76 / 14%); font-size: 12px; font-weight: 700; transition: transform .16s, background .16s, box-shadow .16s; }
+    .button:hover { transform: translateY(-1px); background: #19493e; }
+    .button.secondary { border-color: var(--line); color: var(--ink); background: white; }
+    .button.secondary:hover { background: #f3f5f1; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-bottom: 22px; }
+    .metric { position: relative; overflow: hidden; min-height: 119px; padding: 17px 18px; border: 1px solid var(--line); border-radius: 9px; background: white; box-shadow: 0 4px 14px rgb(29 48 45 / 3%); transition: transform .18s ease, box-shadow .18s ease; }
+    .metric:before { position: absolute; top: 0; right: 0; left: 0; height: 3px; background: var(--metric-accent, var(--green)); content: ""; }
+    .metric:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgb(29 48 45 / 8%); }
+    .metric:after { position: absolute; right: -14px; bottom: -27px; width: 83px; height: 83px; border: 13px solid var(--metric-ring, var(--green-pale)); border-radius: 50%; content: ""; opacity: .8; }
+    .metric-label { color: var(--muted); font-size: 11px; font-weight: 600; }
+    .metric-value { margin-top: 6px; font: 800 26px/1.2 Manrope, sans-serif; letter-spacing: 0; }
+    .metric-note { margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .metric-note b { color: var(--green); }
+    .metric:nth-child(2) { --metric-ring: var(--blue-pale); --metric-accent: var(--blue); }
+    .metric:nth-child(3) { --metric-ring: var(--orange-pale); --metric-accent: var(--orange); }
+    .metric:nth-child(4) { --metric-ring: var(--yellow-pale); --metric-accent: var(--yellow); }
+    .overview-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, .9fr); gap: 16px; }
+    .panel { min-width: 0; border: 1px solid var(--line); border-radius: 9px; background: white; box-shadow: 0 4px 16px rgb(29 48 45 / 3%); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 19px; border-bottom: 1px solid var(--line); background: linear-gradient(110deg, #fff, #fcfdfb); }
+    .panel:first-child .panel-head { border-radius: 8px 8px 0 0; }
+    .panel-head h2 { margin: 0; font: 700 14px Manrope, sans-serif; letter-spacing: 0; }
+    .panel-head small { color: var(--muted); font-size: 11px; }
+    .text-button { padding: 4px 0; border: 0; color: var(--green); background: transparent; font-size: 11px; font-weight: 700; }
+    .text-button:hover { text-decoration: underline; }
+    .occupancy { padding: 20px; }
+    .occupancy-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .occupancy-summary strong { font: 800 26px Manrope, sans-serif; }
+    .occupancy-summary span { color: var(--muted); font-size: 11px; }
+    .bar-row { display: grid; grid-template-columns: 48px minmax(0, 1fr) 40px; align-items: center; gap: 11px; margin: 13px 0; font-size: 11px; }
+    .bar-row > span:first-child { color: #66746d; font-weight: 600; }
+    .track { overflow: hidden; height: 8px; border-radius: 8px; background: #edf0eb; }
+    .bar { height: 100%; border-radius: inherit; background: var(--green); }
+    .bar-row:nth-child(4n) .bar { background: var(--blue); }
+    .bar-row:nth-child(5n) .bar { background: var(--orange); }
+    .bar-row b { text-align: right; font-size: 10px; }
+    .arrivals { padding: 3px 19px 8px; }
+    .arrival { display: flex; align-items: center; gap: 11px; padding: 12px 0; border-bottom: 1px solid #eff0ec; }
+    .arrival:last-child { border-bottom: 0; }
+    .arrival-date { display: grid; flex: 0 0 39px; height: 42px; place-content: center; border-radius: 5px; color: var(--green); background: var(--green-pale); text-align: center; }
+    .arrival-date b { font: 700 14px Manrope, sans-serif; line-height: 1.1; }
+    .arrival-date small { font-size: 9px; text-transform: uppercase; }
+    .arrival-info { min-width: 0; flex: 1; }
+    .arrival-info strong { display: block; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .arrival-info small { color: var(--muted); font-size: 10px; }
+    .status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 20px; color: #406c56; background: var(--green-pale); font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .status:before { width: 5px; height: 5px; border-radius: 50%; background: currentColor; content: ""; }
+    .status.warning { color: #9b6b22; background: var(--yellow-pale); }
+    .status.danger { color: #a44f35; background: var(--orange-pale); }
+    .status.info { color: #4a6e8d; background: var(--blue-pale); }
+    .lower-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 16px; margin-top: 16px; }
+    .ticket-list, .notice-list { padding: 3px 19px 8px; }
+    .ticket, .notice { display: flex; align-items: flex-start; gap: 11px; padding: 12px 0; border-bottom: 1px solid #eff0ec; }
+    .ticket:last-child, .notice:last-child { border-bottom: 0; }
+    .ticket-mark { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border-radius: 5px; color: var(--orange); background: var(--orange-pale); font-size: 12px; font-weight: 700; }
+    .ticket-body, .notice-body { min-width: 0; flex: 1; }
+    .ticket-body strong, .notice-body strong { display: block; font-size: 11px; }
+    .ticket-body small, .notice-body small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .notice-mark { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border-radius: 5px; color: var(--blue); background: var(--blue-pale); font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+    th { padding: 11px 15px; color: #77827c; background: #f7f9f6; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+    td { padding: 13px 15px; border-top: 1px solid #eff0ec; font-size: 11px; transition: background .12s ease; }
+    tbody tr:hover td { background: #f8faf7; }
+    td strong { font-size: 11px; }
+    .resident-cell { display: flex; align-items: center; gap: 9px; }
+    .mini-avatar { display: grid; flex: 0 0 29px; width: 29px; height: 29px; place-items: center; border-radius: 50%; color: var(--green); background: var(--green-pale); font-size: 10px; font-weight: 700; }
+    .secondary-text { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .toolbar { display: flex; align-items: center; gap: 9px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+    .toolbar input, .toolbar select { min-height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: white; font-size: 11px; }
+    .toolbar input { width: min(270px, 45vw); }
+    .toolbar .spacer { flex: 1; }
+    .room-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 16px; }
+    .room-card { padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: 0 3px 10px rgb(29 48 45 / 3%); transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+    .room-card:hover { transform: translateY(-2px); border-color: #c6d6ca; box-shadow: 0 8px 20px rgb(29 48 45 / 7%); }
+    .room-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .room-number { font: 800 17px Manrope, sans-serif; }
+    .room-type { margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .bed-dots { display: flex; gap: 5px; margin-top: 14px; }
+    .bed { width: 18px; height: 12px; border: 1px solid #bdc9c0; border-radius: 3px 3px 1px 1px; background: white; }
+    .bed.filled { border-color: #7e9f8b; background: #dce9df; }
+    .room-foot { display: flex; justify-content: space-between; margin-top: 9px; color: var(--muted); font-size: 10px; }
+    .amount { font-weight: 700; }
+    .amount.overdue { color: #a44f35; }
+    .amount.paid { color: var(--green); }
+    .empty { padding: 28px 16px; color: var(--muted); text-align: center; }
+    dialog { width: min(460px, calc(100% - 28px)); padding: 0; border: 1px solid var(--line); border-radius: 11px; box-shadow: var(--shadow); }
+    dialog::backdrop { background: rgb(17 35 31 / 48%); backdrop-filter: blur(2px); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin: 0; font: 700 16px Manrope, sans-serif; }
+    .close-modal { width: 30px; height: 30px; border: 0; border-radius: 4px; color: var(--muted); background: #f3f5f1; font-size: 19px; }
+    .form { display: grid; gap: 12px; padding: 18px 20px 20px; }
+    .form label { display: grid; gap: 5px; color: #56655e; font-size: 11px; font-weight: 700; }
+    .form input, .form select, .form textarea { width: 100%; min-height: 37px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: white; font-weight: 400; }
+    .form textarea { min-height: 75px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 5px; }
+    .toast { position: fixed; right: 22px; bottom: 20px; z-index: 4; padding: 11px 15px; border-radius: 5px; color: white; background: var(--green-deep); box-shadow: var(--shadow); font-size: 12px; animation: toast-in .2s ease-out; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .auth-screen { display: grid; min-height: 100vh; place-items: center; padding: 20px; background: linear-gradient(140deg, #edf3ee, #fbfbf8 55%, #f5eee7); }
+    .auth-card { width: min(100%, 410px); padding: 30px; border: 1px solid var(--line); border-radius: 9px; background: white; box-shadow: var(--shadow); }
+    .auth-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 27px; color: var(--green-deep); }
+    .auth-card h1 { font-size: 23px; }
+    .auth-card .subtitle { margin-bottom: 22px; }
+    .auth-error { min-height: 18px; margin: 0; color: #a44f35; font-size: 12px; }
+    .auth-card .button { width: 100%; margin-top: 7px; }
+    button:focus-visible { outline: 3px solid rgb(36 88 76 / 35%); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *:before, *:after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+    [hidden] { display: none !important; }
+    .mobile-brand { display: none; }
+    @media (max-width: 1000px) {
+      .app { grid-template-columns: 210px minmax(0, 1fr); }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .room-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .app { display: block; padding-bottom: 62px; }
+      .sidebar { position: fixed; z-index: 3; right: 0; bottom: 0; left: 0; display: block; height: 61px; padding: 4px 7px; border-top: 1px solid #3c6257; }
+      .brand, .nav-label, .sidebar-spacer, .property, .user { display: none; }
+      .nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); height: 100%; gap: 2px; }
+      .nav button { display: flex; min-width: 0; min-height: 0; flex-direction: column; justify-content: center; gap: 0; padding: 4px 2px; border-radius: 4px; font-size: 9px; }
+      .nav button.active { box-shadow: inset 0 2px #e7a47f; }
+      .nav-glyph { height: 20px; font-size: 14px; }
+      .nav-count { position: absolute; margin: -20px 0 0 17px; padding: 0 4px; font-size: 8px; }
+      .topbar { min-height: 61px; gap: 8px; padding: 0 12px; }
+      .crumb { font-size: 10px; white-space: nowrap; }
+      .top-actions { gap: 5px; }
+      .search input { width: min(26vw, 140px); }
+      .top-actions #logout { min-height: 34px; padding: 0 7px; font-size: 10px; white-space: nowrap; }
+      .content { padding: 23px 16px 30px; }
+      .page-heading { align-items: flex-start; margin-bottom: 18px; }
+      .page-heading .button { min-height: 35px; padding: 0 10px; font-size: 11px; }
+      .overview-grid, .lower-grid { grid-template-columns: 1fr; }
+      .room-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 420px) {
+      .metrics { gap: 8px; }
+      .metric { min-height: 105px; padding: 13px; }
+      .metric-value { font-size: 23px; }
+      .metric-label, .metric-note { font-size: 10px; }
+      .room-grid { gap: 8px; padding: 10px; }
+      .toolbar { flex-wrap: wrap; }
+      .toolbar .spacer { display: none; }
+      .toolbar input { width: 100%; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="auth-screen" id="auth-screen" hidden>
+    <div class="auth-card">
+      <div class="auth-brand"><span class="brand-mark">H</span><strong class="brand-name">HostelDesk</strong></div>
+      <div class="eyebrow">ADMINISTRATOR ACCESS</div>
+      <h1>Sign in to your workspace</h1>
+      <p class="subtitle">Student and hostel records are available to authorized administrators only.</p>
+      <form class="form" id="login-form" autocomplete="on">
+        <label>Username<input name="username" required maxlength="120" autocomplete="username"></label>
+        <label>Password<input name="password" type="password" required maxlength="200" autocomplete="current-password"></label>
+        <p class="auth-error" id="login-error" role="alert"></p>
+        <button class="button" type="submit">Sign in</button>
+      </form>
+    </div>
+  </section>
+  <div class="app" id="app-shell" hidden>
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">H</div><div class="brand-name">HostelDesk<span class="brand-caption">RESIDENT OPERATIONS</span></div></div>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="active" data-view="overview"><span class="nav-glyph">⌂</span>Overview</button>
+        <button data-view="residents"><span class="nav-glyph">◉</span>Residents</button>
+        <button data-view="rooms"><span class="nav-glyph">▦</span>Rooms</button>
+        <button data-view="fees"><span class="nav-glyph">₹</span>Fees</button>
+        <button data-view="maintenance"><span class="nav-glyph">⌁</span>Maintenance<span class="nav-count" id="ticket-count">0</span></button>
+        <button data-view="notices"><span class="nav-glyph">▤</span>Notices</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="property"><small>Current property</small><strong>Maple House · North Campus</strong></div>
+      <div class="user"><div class="avatar" id="admin-avatar">A</div><div><strong id="admin-name">Administrator</strong><small>Hostel administrator</small></div></div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div class="crumb">Maple House <span aria-hidden="true">/</span> <strong id="crumb-title">Overview</strong></div>
+        <div class="top-actions">
+          <label class="search"><span aria-hidden="true">⌕</span><input id="global-search" type="search" placeholder="Search residents, rooms..." aria-label="Search residents and rooms"></label>
+          <button class="icon-button" id="quick-add" title="Add a resident" aria-label="Add a resident">+</button>
+          <button class="button secondary" id="logout" type="button">Sign out</button>
+        </div>
+      </header>
+      <section class="content" id="content" aria-live="polite"></section>
+    </main>
+  </div>
+  <dialog id="modal"><div class="modal-head"><h2 id="modal-title"></h2><button class="close-modal" type="button" aria-label="Close">×</button></div><form class="form" id="modal-form"></form></dialog>
+  <div id="toast-region" aria-live="polite"></div>
+  <script>
+    let data;
+    let csrfToken = "";
+    let adminUsername = "";
+    let activeView = "overview";
+    let searchQuery = "";
+    const content = document.querySelector("#content");
+    const modal = document.querySelector("#modal");
+    const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+    async function api(url, options = {}) {
+      const method = options.method || "GET";
+      const headers = { ...options.headers };
+      if (options.body) headers["Content-Type"] = "application/json";
+      if (method !== "GET") headers["X-CSRF-Token"] = csrfToken;
+      const response = await fetch(url, { ...options, method, headers, credentials: "same-origin" });
+      if (response.status === 204) return null;
+      const result = await response.json();
+      if (!response.ok) {
+        if (response.status === 401 && ["/api/data", "/api/logout"].includes(url)) {
+          data = undefined;
+          showLogin();
+          await refreshCsrfToken();
+        }
+        throw new Error(result.error || "The request could not be completed.");
+      }
+      return result;
+    }
+    async function refreshCsrfToken() {
+      const response = await fetch("/api/csrf", { credentials: "same-origin" });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to initialize request verification.");
+      csrfToken = result.token;
+    }
+    const save = () => api("/api/data", { method: "PUT", body: JSON.stringify(data) });
+    async function updateData(change) {
+      const previous = data;
+      data = structuredClone(data);
+      change(data);
+      try {
+        await save();
+      } catch (error) {
+        if (document.querySelector("#app-shell").hidden) data = undefined;
+        else data = previous;
+        throw error;
+      }
+    }
+    const initials = (name) => name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
+    const readableDate = (date) => new Date(`${date}T12:00:00`).toLocaleDateString("en", { day: "numeric", month: "short" });
+    const statusClass = (value) => value === "Paid" || value === "Resolved" ? "" : value === "Overdue" || value === "Critical" ? "danger" : value === "In progress" || value === "Due" || value === "High" ? "warning" : "info";
+    const roomResidents = (room) => data.residents.filter((resident) => resident.room === room).length;
+    const occupiedBeds = () => data.rooms.reduce((sum, room) => sum + Math.min(roomResidents(room.number), room.capacity), 0);
+    const openTickets = () => data.tickets.filter((ticket) => ticket.status !== "Resolved");
+    function heading(kicker, title, subtitle, action = "") {
+      return `<div class="page-heading"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div>${action}</div>`;
+    }
+    function panel(title, body, action = "", extra = "") {
+      return `<section class="panel ${extra}"><div class="panel-head"><h2>${title}</h2>${action}</div>${body}</section>`;
+    }
+    function renderOverview() {
+      const occupied = occupiedBeds();
+      const capacity = data.rooms.reduce((sum, room) => sum + room.capacity, 0);
+      const outstanding = data.residents.filter((resident) => resident.fee !== "Paid").length;
+      const tickets = openTickets().slice().sort((a, b) => ["Critical", "High", "Medium", "Low"].indexOf(a.severity) - ["Critical", "High", "Medium", "Low"].indexOf(b.severity)).slice(0, 3);
+      const blocks = [...new Set(data.rooms.map((room) => room.block))].sort();
+      const bars = blocks.map((block) => {
+        const rooms = data.rooms.filter((room) => room.block === block);
+        const beds = rooms.reduce((sum, room) => sum + room.capacity, 0);
+        const used = rooms.reduce((sum, room) => sum + Math.min(roomResidents(room.number), room.capacity), 0);
+        return `<div class="bar-row"><span>Block ${escapeHtml(block)}</span><div class="track"><div class="bar" style="width:${beds ? Math.round(used / beds * 100) : 0}%"></div></div><b>${beds ? Math.round(used / beds * 100) : 0}%</b></div>`;
+      }).join("");
+      const arrivals = data.residents.slice(-4).reverse().map((resident) => `<div class="arrival"><div class="arrival-date"><b>${new Date(`${resident.joined}T12:00:00`).getDate()}</b><small>${new Date(`${resident.joined}T12:00:00`).toLocaleDateString("en", { month: "short" })}</small></div><div class="arrival-info"><strong>${escapeHtml(resident.name)}</strong><small>Room ${escapeHtml(resident.room)} · ${escapeHtml(resident.block)} Block</small></div><span class="status info">New</span></div>`).join("");
+      const ticketRows = tickets.length ? tickets.map((ticket) => `<div class="ticket"><div class="ticket-mark">!</div><div class="ticket-body"><strong>${escapeHtml(ticket.description)}</strong><small>${escapeHtml(ticket.category)} · Room ${escapeHtml(ticket.location)} · ${readableDate(ticket.date)}</small></div><span class="status ${statusClass(ticket.severity)}">${escapeHtml(ticket.severity)}</span></div>`).join("") : `<div class="empty">No open maintenance tickets.</div>`;
+      const noticeRows = data.notices.slice(0, 3).map((notice) => `<div class="notice"><div class="notice-mark">N</div><div class="notice-body"><strong>${escapeHtml(notice.title)}</strong><small>${escapeHtml(notice.audience)} · ${readableDate(notice.date)}</small></div></div>`).join("") || `<div class="empty">No notices yet.</div>`;
+      const today = new Date().toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" });
+      return `${heading(today, `Good morning, ${escapeHtml(adminUsername)}`, "Here’s the latest across Maple House.", `<button class="button" data-action="add-resident">＋ Add resident</button>`)}
+        <div class="metrics">
+          <article class="metric"><div class="metric-label">BED OCCUPANCY</div><div class="metric-value">${occupied}<span style="color:#9aa59f;font-size:15px;font-weight:600"> / ${capacity}</span></div><div class="metric-note"><b>${capacity ? Math.round(occupied / capacity * 100) : 0}%</b> of beds occupied</div></article>
+          <article class="metric"><div class="metric-label">REGISTERED RESIDENTS</div><div class="metric-value">${data.residents.length}</div><div class="metric-note">Across ${data.rooms.length} managed rooms</div></article>
+          <article class="metric"><div class="metric-label">FEES NEED ATTENTION</div><div class="metric-value">${outstanding}</div><div class="metric-note">Residents with a balance due</div></article>
+          <article class="metric"><div class="metric-label">OPEN MAINTENANCE</div><div class="metric-value">${openTickets().length}</div><div class="metric-note"><b>${openTickets().filter((ticket) => ticket.severity === "Critical").length} critical</b> need prompt attention</div></article>
+        </div>
+        <div class="overview-grid">
+          ${panel("Occupancy by block", `<div class="occupancy"><div class="occupancy-summary"><strong>${capacity ? Math.round(occupied / capacity * 100) : 0}% <span style="font:500 11px 'DM Sans';color:var(--muted)">overall occupancy</span></strong><span>${capacity - occupied} beds available</span></div>${bars}</div>`, `<button class="text-button" data-nav="rooms">Room list →</button>`)}
+          ${panel("Recent move-ins", `<div class="arrivals">${arrivals || `<div class="empty">No residents yet.</div>`}</div>`, `<button class="text-button" data-nav="residents">View all →</button>`)}
+        </div>
+        <div class="lower-grid">
+          ${panel("Maintenance needing attention", `<div class="ticket-list">${ticketRows}</div>`, `<button class="text-button" data-nav="maintenance">All tickets →</button>`)}
+          ${panel("Latest notices", `<div class="notice-list">${noticeRows}</div>`, `<button class="text-button" data-nav="notices">All notices →</button>`)}
+        </div>`;
+    }
+    function renderResidents() {
+      const query = searchQuery.toLowerCase();
+      const residents = data.residents.filter((resident) => `${resident.name} ${resident.email} ${resident.room}`.toLowerCase().includes(query));
+      const rows = residents.map((resident) => `<tr><td><div class="resident-cell"><span class="mini-avatar">${initials(escapeHtml(resident.name))}</span><span><strong>${escapeHtml(resident.name)}</strong><small class="secondary-text">${escapeHtml(resident.email)}</small></span></div></td><td>${escapeHtml(resident.room)}</td><td>${escapeHtml(resident.block)} Block</td><td>${readableDate(resident.joined)}</td><td><span class="status ${statusClass(resident.fee)}">${escapeHtml(resident.fee)}</span></td></tr>`).join("");
+      return `${heading("People & accommodation", "Residents", `${data.residents.length} registered residents`, `<button class="button" data-action="add-resident">＋ Add resident</button>`)}${panel("Resident directory", `<div class="toolbar"><input id="resident-filter" type="search" value="${escapeHtml(searchQuery)}" placeholder="Filter by name, email or room" aria-label="Filter residents"><span class="spacer"></span><span class="secondary-text">${residents.length} shown</span></div><div class="table-wrap"><table><thead><tr><th>Resident</th><th>Room</th><th>Block</th><th>Move-in</th><th>Fee status</th></tr></thead><tbody>${rows || `<tr><td colspan="5" class="empty">No residents match this search.</td></tr>`}</tbody></table></div>`)}`;
+    }
+    function renderRooms() {
+      const blocks = [...new Set(data.rooms.map((room) => room.block))].sort();
+      const cards = data.rooms.map((room) => {
+        const residents = roomResidents(room.number);
+        const beds = Array.from({ length: room.capacity }, (_, index) => `<span class="bed ${index < residents ? "filled" : ""}" title="${index < residents ? "Occupied" : "Available"} bed"></span>`).join("");
+        return `<article class="room-card"><div class="room-top"><div><div class="room-number">${escapeHtml(room.number)}</div><div class="room-type">${escapeHtml(room.type)} · Block ${escapeHtml(room.block)}</div></div><span class="status ${residents >= room.capacity ? "" : "info"}">${residents >= room.capacity ? "Full" : "Available"}</span></div><div class="bed-dots">${beds}</div><div class="room-foot"><span>${residents} / ${room.capacity} beds occupied</span><span>${room.capacity - residents} free</span></div></article>`;
+      }).join("");
+      return `${heading("Accommodation", "Room directory", `${data.rooms.length} rooms · ${data.rooms.reduce((sum, room) => sum + room.capacity, 0)} total beds`)}${panel("Room availability", `<div class="toolbar"><select id="block-filter" aria-label="Filter by block"><option value="all">All blocks</option>${blocks.map((block) => `<option value="${escapeHtml(block)}">Block ${escapeHtml(block)}</option>`).join("")}</select><span class="secondary-text">Bed availability updates with resident assignments</span></div><div class="room-grid" id="room-grid">${cards}</div>`)}`;
+    }
+    function renderFees() {
+      const rows = data.residents.map((resident) => {
+        const due = resident.fee === "Paid" ? 0 : resident.fee === "Overdue" ? 18500 : 12000;
+        return `<tr><td><div class="resident-cell"><span class="mini-avatar">${initials(escapeHtml(resident.name))}</span><span><strong>${escapeHtml(resident.name)}</strong><small class="secondary-text">Room ${escapeHtml(resident.room)}</small></span></div></td><td>October 2026</td><td class="amount ${due ? "overdue" : "paid"}">${money.format(due)}</td><td><span class="status ${statusClass(resident.fee)}">${escapeHtml(resident.fee)}</span></td><td>${due ? `<button class="text-button" data-paid="${resident.id}">Mark paid</button>` : "—"}</td></tr>`;
+      }).join("");
+      const total = data.residents.reduce((sum, resident) => sum + (resident.fee === "Overdue" ? 18500 : resident.fee === "Due" ? 12000 : 0), 0);
+      return `${heading("Accounts", "Fees & dues", "Monthly hostel charges · October 2026", `<button class="button secondary" data-action="export-fees">↓ Export summary</button>`)}<div class="metrics"><article class="metric"><div class="metric-label">OUTSTANDING BALANCE</div><div class="metric-value" style="font-size:23px">${money.format(total)}</div><div class="metric-note">Across all unpaid accounts</div></article><article class="metric"><div class="metric-label">ACCOUNTS PAID</div><div class="metric-value">${data.residents.filter((resident) => resident.fee === "Paid").length}</div><div class="metric-note">Of ${data.residents.length} residents</div></article><article class="metric"><div class="metric-label">PAYMENTS DUE</div><div class="metric-value">${data.residents.filter((resident) => resident.fee === "Due").length}</div><div class="metric-note">Upcoming or due this month</div></article><article class="metric"><div class="metric-label">OVERDUE ACCOUNTS</div><div class="metric-value">${data.residents.filter((resident) => resident.fee === "Overdue").length}</div><div class="metric-note">Follow up with residents</div></article></div>${panel("Resident fee ledger", `<div class="table-wrap"><table><thead><tr><th>Resident</th><th>Billing period</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows || `<tr><td colspan="5" class="empty">No resident accounts yet.</td></tr>`}</tbody></table></div>`)}`;
+    }
+    function renderMaintenance() {
+      const order = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+      const tickets = data.tickets.slice().sort((a, b) => order[a.severity] - order[b.severity]);
+      const rows = tickets.map((ticket) => `<tr><td><strong>${escapeHtml(ticket.id)}</strong><small class="secondary-text">${readableDate(ticket.date)}</small></td><td>${escapeHtml(ticket.category)}</td><td><strong>${escapeHtml(ticket.description)}</strong></td><td>${escapeHtml(ticket.location)}</td><td><span class="status ${statusClass(ticket.severity)}">${escapeHtml(ticket.severity)}</span></td><td>${ticket.status === "Resolved" ? `<span class="status">Resolved</span>` : `<select data-ticket-status="${escapeHtml(ticket.id)}" aria-label="Update ${escapeHtml(ticket.id)} status"><option ${ticket.status === "Open" ? "selected" : ""}>Open</option><option ${ticket.status === "In progress" ? "selected" : ""}>In progress</option><option>Resolved</option></select>`}</td></tr>`).join("");
+      const critical = tickets.filter((ticket) => ticket.severity === "Critical" && ticket.status !== "Resolved").length;
+      return `${heading("Resident support", "Maintenance", `${openTickets().length} open tickets · safety issues are prioritized`, `<button class="button" data-action="add-ticket">＋ New ticket</button>`)}${critical ? `<div style="margin-bottom:14px;padding:12px 15px;border-left:3px solid var(--orange);background:var(--orange-pale);color:#773f2e;font-size:12px"><strong>Priority alert:</strong> ${critical} critical issue${critical === 1 ? "" : "s"} require immediate staff attention. For active danger, contact emergency services directly.</div>` : ""}${panel("Ticket queue", `<div class="table-wrap"><table><thead><tr><th>Ticket</th><th>Category</th><th>Description</th><th>Location</th><th>Severity</th><th>Status</th></tr></thead><tbody>${rows || `<tr><td colspan="6" class="empty">No tickets logged. Use “New ticket” to report an issue.</td></tr>`}</tbody></table></div>`)}`;
+    }
+    function renderNotices() {
+      const rows = data.notices.map((notice) => `<div class="notice" style="padding:16px 20px"><div class="notice-mark">N</div><div class="notice-body"><strong>${escapeHtml(notice.title)}</strong><small>${escapeHtml(notice.audience)} · ${readableDate(notice.date)}</small><p style="margin:8px 0 0;color:#58665f;font-size:11px">${escapeHtml(notice.body)}</p></div></div>`).join("") || `<div class="empty">No notices yet. Create one to share an update.</div>`;
+      return `${heading("Communication", "Notices", `${data.notices.length} published announcements`, `<button class="button" data-action="add-notice">＋ Draft notice</button>`)}${panel("Published notices", `<div>${rows}</div>`)}`;
+    }
+    const renderers = { overview: renderOverview, residents: renderResidents, rooms: renderRooms, fees: renderFees, maintenance: renderMaintenance, notices: renderNotices };
+    const titles = { overview: "Overview", residents: "Residents", rooms: "Rooms", fees: "Fees", maintenance: "Maintenance", notices: "Notices" };
+    function render() {
+      document.querySelector("#crumb-title").textContent = titles[activeView];
+      document.querySelector("#admin-name").textContent = adminUsername;
+      document.querySelector("#admin-avatar").textContent = initials(adminUsername);
+      document.querySelectorAll(".nav [data-view]").forEach((button) => button.classList.toggle("active", button.dataset.view === activeView));
+      document.querySelector("#ticket-count").textContent = openTickets().length;
+      content.innerHTML = renderers[activeView]();
+    }
+    function showToast(message) {
+      const region = document.querySelector("#toast-region");
+      region.innerHTML = `<div class="toast">${escapeHtml(message)}</div>`;
+      setTimeout(() => region.replaceChildren(), 2600);
+    }
+    function openForm(title, fields, onSubmit) {
+      document.querySelector("#modal-title").textContent = title;
+      const form = document.querySelector("#modal-form");
+      form.innerHTML = `${fields}<div class="form-actions"><button class="button secondary" type="button" data-cancel>Cancel</button><button class="button" type="submit">Save</button></div>`;
+      form.onsubmit = async (event) => {
+        event.preventDefault();
+        const submit = form.querySelector('[type="submit"]');
+        submit.disabled = true;
+        try {
+          const values = Object.fromEntries(new FormData(form));
+          await onSubmit(values);
+          modal.close();
+        } catch (error) {
+          showToast(error.message);
+        } finally {
+          submit.disabled = false;
+        }
+      };
+      modal.showModal();
+    }
+    function residentForm() {
+      const options = data.rooms.map((room) => `<option value="${escapeHtml(room.number)}" ${roomResidents(room.number) >= room.capacity ? "disabled" : ""}>${escapeHtml(room.number)} · ${escapeHtml(room.type)} (${room.capacity - roomResidents(room.number)} free)</option>`).join("");
+      openForm("Add resident", `<label>Full name<input name="name" required maxlength="80" autocomplete="name"></label><label>Student email<input name="email" type="email" required maxlength="120" autocomplete="email"></label><div class="form-row"><label>Room<select name="room" required>${options || "<option value=''>No available rooms</option>"}</select></label><label>Fee status<select name="fee"><option>Paid</option><option>Due</option><option>Overdue</option></select></label></div>`, async (values) => {
+        const room = data.rooms.find((entry) => entry.number === values.room);
+        if (!room || roomResidents(room.number) >= room.capacity) throw new Error("That room has no available beds.");
+        await updateData((next) => next.residents.push({ id: Date.now(), name: values.name.trim(), email: values.email.trim(), room: room.number, block: room.block, joined: new Date().toISOString().slice(0, 10), fee: values.fee }));
+        render(); showToast("Resident added to the directory.");
+      });
+    }
+    function ticketForm() {
+      openForm("Log maintenance ticket", `<div class="form-row"><label>Category<select name="category"><option>Plumbing</option><option>Electrical</option><option>Wi-Fi</option><option>Carpentry</option><option>Cleaning</option><option>Other</option></select></label><label>Severity<select name="severity"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></label></div><label>Description<textarea name="description" required maxlength="240" placeholder="Describe the issue and any immediate safety concern"></textarea></label><label>Location / room<input name="location" required maxlength="40" placeholder="e.g. B-212 or east common room"></label>`, async (values) => {
+        await updateData((next) => next.tickets.unshift({ id: `MT-${String(Date.now()).slice(-5)}`, category: values.category, severity: values.severity, description: values.description.trim(), location: values.location.trim(), status: "Open", date: new Date().toISOString().slice(0, 10) }));
+        render(); showToast(values.severity === "Critical" ? "Critical ticket logged. Alert on-site staff immediately." : "Maintenance ticket logged.");
+      });
+    }
+    function noticeForm() {
+      openForm("Draft official notice", `<label>Title<input name="title" required maxlength="90" placeholder="Clear, concise announcement"></label><div class="form-row"><label>Effective date<input name="date" type="date" required value="${new Date().toISOString().slice(0, 10)}"></label><label>Target audience<select name="audience"><option>All residents</option><option>Specific block</option><option>Staff</option><option>Residents with outstanding balances</option></select></label></div><label>Action required / details<textarea name="body" required maxlength="500" placeholder="Include the key details and what recipients need to do"></textarea></label>`, async (values) => {
+        await updateData((next) => next.notices.unshift({ title: values.title.trim(), audience: values.audience, date: values.date, body: values.body.trim() }));
+        render(); showToast("Notice published to the dashboard.");
+      });
+    }
+    document.addEventListener("click", async (event) => {
+      const nav = event.target.closest("[data-view], [data-nav]");
+      if (nav) { activeView = nav.dataset.view || nav.dataset.nav; searchQuery = ""; render(); return; }
+      const action = event.target.closest("[data-action]")?.dataset.action;
+      if (action === "add-resident") residentForm();
+      if (action === "add-ticket") ticketForm();
+      if (action === "add-notice") noticeForm();
+      if (action === "export-fees") {
+        const csv = ["Resident,Room,Status,Outstanding INR", ...data.residents.map((resident) => `${JSON.stringify(resident.name)},${resident.room},${resident.fee},${resident.fee === "Overdue" ? 18500 : resident.fee === "Due" ? 12000 : 0}`)].join("\n");
+        const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); link.download = "hostel-fees-october-2026.csv"; link.click(); URL.revokeObjectURL(link.href); showToast("Fee summary exported.");
+      }
+      const paid = event.target.closest("[data-paid]");
+      if (paid) {
+        try {
+          await updateData((next) => {
+            const resident = next.residents.find((entry) => entry.id === Number(paid.dataset.paid));
+            if (resident) resident.fee = "Paid";
+          });
+          render(); showToast("Account marked as paid.");
+        } catch (error) {
+          showToast(error.message);
+        }
+      }
+      if (event.target.closest("[data-cancel]") || event.target.closest(".close-modal")) modal.close();
+    });
+    document.querySelector("#global-search").addEventListener("input", (event) => {
+      searchQuery = event.target.value;
+      if (searchQuery && activeView !== "residents") { activeView = "residents"; render(); document.querySelector("#global-search").focus(); document.querySelector("#global-search").value = searchQuery; }
+      else if (activeView === "residents") render();
+    });
+    content.addEventListener("input", (event) => {
+      if (event.target.id === "resident-filter") { searchQuery = event.target.value; render(); const field = document.querySelector("#resident-filter"); field.focus(); field.setSelectionRange(searchQuery.length, searchQuery.length); }
+    });
+    content.addEventListener("change", async (event) => {
+      if (event.target.id === "block-filter") document.querySelectorAll(".room-card").forEach((card) => { card.hidden = event.target.value !== "all" && !card.querySelector(".room-type").textContent.includes(`Block ${event.target.value}`); });
+      const ticketId = event.target.dataset.ticketStatus;
+      if (ticketId) {
+        try {
+          await updateData((next) => {
+            const ticket = next.tickets.find((entry) => entry.id === ticketId);
+            if (ticket) ticket.status = event.target.value;
+          });
+          render(); showToast("Ticket status updated.");
+        } catch (error) {
+          showToast(error.message);
+          render();
+        }
+      }
+    });
+    document.querySelector("#quick-add").addEventListener("click", residentForm);
+    document.querySelector("#logout").addEventListener("click", async () => {
+      try {
+        await api("/api/logout", { method: "POST" });
+        data = undefined;
+        const csrf = await api("/api/csrf");
+        csrfToken = csrf.token;
+        showLogin();
+      } catch (error) {
+        showToast(error.message);
+      }
+    });
+    document.querySelector("#login-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const button = form.querySelector('[type="submit"]');
+      const error = document.querySelector("#login-error");
+      error.textContent = "";
+      button.disabled = true;
+      try {
+        const credentials = Object.fromEntries(new FormData(form));
+        const result = await api("/api/login", { method: "POST", body: JSON.stringify(credentials) });
+        csrfToken = result.csrfToken;
+        adminUsername = result.username;
+        data = await api("/api/data");
+        document.querySelector("#auth-screen").hidden = true;
+        document.querySelector("#app-shell").hidden = false;
+        form.reset();
+        render();
+        resetInactivityTimer();
+      } catch (requestError) {
+        error.textContent = requestError.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+    function showLogin() {
+      clearTimeout(inactivityTimer);
+      data = undefined;
+      adminUsername = "";
+      activeView = "overview";
+      searchQuery = "";
+      document.querySelector("#global-search").value = "";
+      content.replaceChildren();
+      if (modal.open) modal.close();
+      document.querySelector("#app-shell").hidden = true;
+      document.querySelector("#auth-screen").hidden = false;
+    }
+    async function start() {
+      try {
+        await refreshCsrfToken();
+        const sessionState = await api("/api/session");
+        if (sessionState.authenticated) {
+          adminUsername = sessionState.username;
+          data = await api("/api/data");
+          document.querySelector("#auth-screen").hidden = true;
+          document.querySelector("#app-shell").hidden = false;
+          render();
+          resetInactivityTimer();
+        } else {
+          showLogin();
+        }
+      } catch (error) {
+        showLogin();
+        document.querySelector("#login-error").textContent = `Unable to connect to the server: ${error.message}`;
+      }
+    }
+    let inactivityTimer;
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      if (document.querySelector("#app-shell").hidden) return;
+      inactivityTimer = setTimeout(async () => {
+        try {
+          await api("/api/logout", { method: "POST" });
+          await refreshCsrfToken();
+        } catch (_error) {
+          document.querySelector("#login-error").textContent = "Your session has ended. Sign in again to continue.";
+        }
+        showLogin();
+      }, 30 * 60 * 1000);
+    }
+    ["click", "keydown", "pointerdown", "touchstart"].forEach((eventName) => {
+      document.addEventListener(eventName, resetInactivityTimer, { passive: true });
+    });
+    start();
+  </script>
+</body>
+</html>
